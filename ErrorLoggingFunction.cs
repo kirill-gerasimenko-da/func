@@ -2,9 +2,10 @@ using System.Diagnostics;
 using Serilog;
 using SimpleInjector;
 
+using ILogger = Serilog.ILogger;
 using static Functions;
 
-public partial static class Decorators
+public static partial class Decorators
 {
     public class ErrorLoggingFunctionAsync<TInput, TOutput> : FunctionAsync<TInput, TOutput>.Func
     {
