@@ -49,7 +49,7 @@ public static class Functions
         /// </summary>
         Eff<TOutput> Apply(TInput input);
     }
-    
+
     class ValidatorImpl<T> : AbstractValidator<T>
     {
         public ValidatorImpl(InputValidator<T> registerValidators) => registerValidators(this);
@@ -68,9 +68,11 @@ public static class Functions
         protected abstract Aff<TOutput> Apply(TInput input, CancellationToken ct);
 
         Aff<TOutput> IFunctionAsync<TInput, TOutput>.Apply(TInput input, CancellationToken ct) =>
+            from _1 in guardnot(ReferenceEquals(input, null),
+                Error.New(FunctionValidationError.Value.Code, "Input could not be null"))
             from validator in Eff(() => _validator)
             from validationResult in Eff(() => _validator.Validate(input))
-            from _ in guard(validationResult.IsValid,
+            from _2 in guard(validationResult.IsValid,
                 Error.New(FunctionValidationError.Value.Code,
                     $"Validation failed for {input.GetType().Name}",
                     (Exception) new ValidationException(validationResult.Errors)))
@@ -91,9 +93,11 @@ public static class Functions
         protected abstract Eff<TOutput> Apply(TInput input);
 
         Eff<TOutput> IFunction<TInput, TOutput>.Apply(TInput input) =>
+            from _1 in guardnot(ReferenceEquals(input, null),
+                Error.New(FunctionValidationError.Value.Code, "Input could not be null"))
             from validator in Eff(() => _validator)
             from validationResult in Eff(() => _validator.Validate(input))
-            from _ in guard(validationResult.IsValid,
+            from _2 in guard(validationResult.IsValid,
                 Error.New(FunctionValidationError.Value.Code,
                     $"Validation failed for {input.GetType().Name}",
                     (Exception) new ValidationException(validationResult.Errors)))
