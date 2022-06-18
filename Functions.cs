@@ -84,7 +84,7 @@ public static class Functions
             select output;
     }
 
-    public abstract class FunctionAsync<TOutput> : FunctionAsync<Unit, TOutput>.Func
+    public abstract class FunctionAsync<TOutput> : FunctionAsync<TOutput>.Func
     {
         public interface Func : IFunctionAsync<Unit, TOutput>
         { }
@@ -95,7 +95,7 @@ public static class Functions
         protected abstract Aff<TOutput> Apply(CancellationToken ct);
     }
 
-    public abstract class Function<TOutput> : Function<Unit, TOutput>.Func
+    public abstract class Function<TOutput> : Function<TOutput>.Func
     {
         public interface Func : IFunction<Unit, TOutput>
         { }
