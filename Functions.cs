@@ -28,7 +28,7 @@ public static class Functions
     {
         Eff<TOutput> Apply(TInput input);
     }
-    
+
     class ValidatorImpl<T> : AbstractValidator<T>
     {
         public ValidatorImpl(InputValidator<T> registerValidators) => registerValidators(this);
@@ -105,4 +105,23 @@ public static class Functions
 
         protected abstract Eff<TOutput> Apply();
     }
+
+    public static Aff<TOutput> Apply<TOutput>(this IFunctionAsync<Unit, TOutput> func, CancellationToken ct) =>
+        func.Apply(unit, ct);
+
+    public static Eff<TOutput> Apply<TOutput>(this IFunction<Unit, TOutput> func) =>
+        func.Apply(unit);
+
+    #region Delegates
+
+    public delegate Aff<TOutput> FunctionAff<TInput, TOutput>(TInput input, CancellationToken ct);
+    public delegate Eff<TOutput> FunctionEff<TInput, TOutput>(TInput input);
+
+    public static Func<TInput, CancellationToken, Aff<TOutput>> ToDelegate<TInput, TOutput>(
+        this IFunctionAsync<TInput, TOutput> func) => func.Apply;
+
+    public static Func<TInput, Eff<TOutput>> ToDelegate<TInput, TOutput>(
+        this IFunction<TInput, TOutput> func) => func.Apply;
+
+    #endregion
 }
