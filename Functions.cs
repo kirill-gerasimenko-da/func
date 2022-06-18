@@ -15,41 +15,20 @@ public static class Functions
 
     public delegate void InputValidator<TInput>(AbstractValidator<TInput> validator);
 
-    public delegate Aff<TOutput> FunctionAff<TInput, TOutput>(TInput input, CancellationToken ct);
-    public delegate Aff<TOutput> FunctionAff<TOutput>(CancellationToken ct);
-    public delegate Eff<TOutput> FunctionEff<TInput, TOutput>(TInput input);
-
     public static Error ToError(this Exception exception) => exception is ErrorException ee
         ? ee.ToError()
         : Error.New(exception);
 
     public interface IFunctionAsync<TInput, TOutput>
     {
-        /// <summary>
-        /// Applies input to the function, returning async effect.
-        /// When run it will invoke the function with specified input arguments.
-        /// </summary>
         Aff<TOutput> Apply(TInput input, CancellationToken ct);
-    }
-
-    public interface IFunctionAsync<TOutput>
-    {
-        /// <summary>
-        /// Applies input to the function, returning async effect.
-        /// When run it will invoke the function with specified input arguments.
-        /// </summary>
-        Aff<TOutput> Apply(CancellationToken ct);
     }
 
     public interface IFunction<TInput, TOutput>
     {
-        /// <summary>
-        /// Applies input to the function, returning sync effect.
-        /// When run it will invoke the function with specified input arguments.
-        /// </summary>
         Eff<TOutput> Apply(TInput input);
     }
-
+    
     class ValidatorImpl<T> : AbstractValidator<T>
     {
         public ValidatorImpl(InputValidator<T> registerValidators) => registerValidators(this);
@@ -105,23 +84,23 @@ public static class Functions
             select output;
     }
 
-    public abstract class FunctionAsync<TOutput> : FunctionAsync<TOutput>.Func
+    public abstract class FunctionAsync<TOutput> : FunctionAsync<Unit, TOutput>.Func
     {
-        public interface Func : IFunctionAsync<TOutput>
+        public interface Func : IFunctionAsync<Unit, TOutput>
         { }
 
-        Aff<TOutput> IFunctionAsync<TOutput>.Apply(CancellationToken ct) =>
+        Aff<TOutput> IFunctionAsync<Unit, TOutput>.Apply(Unit _, CancellationToken ct) =>
             from output in Apply(ct) select output;
 
         protected abstract Aff<TOutput> Apply(CancellationToken ct);
     }
 
-    public abstract class Function<TOutput> : Function<TOutput>.Func
+    public abstract class Function<TOutput> : Function<Unit, TOutput>.Func
     {
-        public interface Func : IFunction<TOutput>
+        public interface Func : IFunction<Unit, TOutput>
         { }
 
-        Eff<TOutput> IFunction<TOutput>.Apply() =>
+        Eff<TOutput> IFunction<Unit, TOutput>.Apply(Unit _) =>
             from output in Apply() select output;
 
         protected abstract Eff<TOutput> Apply();
