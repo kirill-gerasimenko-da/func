@@ -105,43 +105,6 @@ public static class Functions
             select output;
     }
 
-    #region Delegates
-
-    // class FunctionAsyncImpl<TInput, TOutput> : FunctionAsync<TInput, TOutput>
-    // {
-    //     readonly FunctionAff<TInput, TOutput> _func;
-    //     public FunctionAsyncImpl(FunctionAff<TInput, TOutput> func) => _func = func;
-    //     protected override Aff<TOutput> Apply(TInput input, CancellationToken ct) => _func(input, ct);
-    // }
-    //
-    // class FunctionImpl<TInput, TOutput> : Function<TInput, TOutput>
-    // {
-    //     readonly FunctionEff<TInput, TOutput> _func;
-    //     public FunctionImpl(FunctionEff<TInput, TOutput> func) => _func = func;
-    //     protected override Eff<TOutput> Apply(TInput input) => _func(input);
-    // }
-    //
-    // public static IFunctionAsync<TInput, TOutput> ToFunction<TInput, TOutput>(
-    //     this FunctionAff<TInput, TOutput> func) => new FunctionAsyncImpl<TInput, TOutput>(func);
-    //
-    // public static IFunction<TInput, TOutput> ToFunction<TInput, TOutput>(
-    //     this FunctionEff<TInput, TOutput> func) => new FunctionImpl<TInput, TOutput>(func);
-    //
-    // public static IFunctionAsync<TInput, TOutput> ToFunction<TInput, TOutput>(
-    //     this Func<TInput, CancellationToken, Aff<TOutput>> func) =>
-    //     new FunctionAsyncImpl<TInput, TOutput>(new(func));
-    //
-    // public static IFunction<TInput, TOutput> ToFunction<TInput, TOutput>(
-    //     this Func<TInput, Eff<TOutput>> func) => new FunctionImpl<TInput, TOutput>(new(func));
-    //
-    // public static FunctionAff<TInput, TOutput> ToDelegate<TInput, TOutput>(this IFunctionAsync<TInput, TOutput> func) =>
-    //     func.Apply;
-    //
-    // public static FunctionEff<TInput, TOutput> ToDelegate<TInput, TOutput>(this IFunction<TInput, TOutput> func) =>
-    //     func.Apply;
-
-    #endregion
-
     public abstract class FunctionAsync<TOutput> : FunctionAsync<TOutput>.Func
     {
         public interface Func : IFunctionAsync<TOutput>
@@ -151,5 +114,16 @@ public static class Functions
             from output in Apply(ct) select output;
 
         protected abstract Aff<TOutput> Apply(CancellationToken ct);
+    }
+
+    public abstract class Function<TOutput> : Function<TOutput>.Func
+    {
+        public interface Func : IFunction<TOutput>
+        { }
+
+        Eff<TOutput> IFunction<TOutput>.Apply() =>
+            from output in Apply() select output;
+
+        protected abstract Eff<TOutput> Apply();
     }
 }
